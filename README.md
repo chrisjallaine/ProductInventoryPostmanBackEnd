@@ -28,6 +28,23 @@ npm install express mongoose dotenv bcryptjs jsonwebtoken cors morgan
 npm install --save-dev nodemon
 ```
 
+### Project Directory Structure:
+```
+product-inventory-api/
+│-- config/
+│   ├── database.js       # MongoDB connection
+│-- models/
+│   ├── Product.js        # Mongoose schema for products
+│-- routes/
+│   ├── productRoutes.js  # Product API endpoints
+│-- controllers/
+│   ├── productController.js # CRUD logic for products
+│-- .env                   # Environment variables
+│-- index.js               # Entry point
+│-- package.json
+```
+
 ### To Clone:
 ```sh
 git clone https://github.com/chrisjallaine/ProductInventoryPostman.git
+```
