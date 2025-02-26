@@ -11,7 +11,7 @@ npm init -y
 
 ### Install Required Dependencies:
 ```sh
-npm install express mongoose dotenv bcryptjs jsonwebtoken cors morgan
+npm install express mongoose dotenv bcryptjs jsonwebtoken cors morgan stripe
 ```
 
 ### Explanation of Packages:
