@@ -1,6 +1,6 @@
 const Product = require("../models/Product");
 
-// Get all products
+// @desc Get all products
 exports.getProducts = async (req, res) => {
     try {
         const products = await Product.find();
@@ -10,22 +10,22 @@ exports.getProducts = async (req, res) => {
     }
 };
 
-// Get products by category
-exports.getProductsByCategory = async (req, res) => {
+// @desc Get a single product by ID
+exports.getProductById = async (req, res) => {
     try {
-        const category = req.params.category;
-        const products = await Product.find({ category });
-        res.json(products);
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+        res.json(product);
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }
 };
 
-// Create a new product
+// @desc Create a new product
 exports.createProduct = async (req, res) => {
     try {
-        const { name, description, category, subcategory, size, price, quantity } = req.body;
-        const newProduct = new Product({ name, description, category, subcategory, size, price, quantity });
+        const { name, description, price, quantity } = req.body;
+        const newProduct = new Product({ name, description, price, quantity });
         await newProduct.save();
         res.status(201).json(newProduct);
     } catch (error) {
@@ -33,7 +33,7 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-// Update a product
+// @desc Update a product
 exports.updateProduct = async (req, res) => {
     try {
         const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -44,7 +44,7 @@ exports.updateProduct = async (req, res) => {
     }
 };
 
-// Delete a product
+// @desc Delete a product
 exports.deleteProduct = async (req, res) => {
     try {
         const deletedProduct = await Product.findByIdAndDelete(req.params.id);
