@@ -1,0 +1,2 @@
+# ProductInventoryPostman
+- integration of POSTMAN 
