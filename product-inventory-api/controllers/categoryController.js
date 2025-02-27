@@ -6,7 +6,7 @@ exports.getCategories = async (req, res) => {
         const categories = await Category.find();
         res.json(categories);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error retrieving categories", error: error.message });
     }
 };
 
@@ -17,19 +17,21 @@ exports.getCategoryById = async (req, res) => {
         if (!category) return res.status(404).json({ message: "Category not found" });
         res.json(category);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error retrieving category", error: error.message });
     }
 };
 
 // @desc Create a new category
 exports.createCategory = async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const newCategory = new Category({ name, description });
+        const { name } = req.body;
+        if (!name) return res.status(400).json({ message: "Category name is required" });
+
+        const newCategory = new Category({ name });
         await newCategory.save();
         res.status(201).json(newCategory);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error creating category", error: error.message });
     }
 };
 
@@ -40,7 +42,7 @@ exports.updateCategory = async (req, res) => {
         if (!updatedCategory) return res.status(404).json({ message: "Category not found" });
         res.json(updatedCategory);
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error updating category", error: error.message });
     }
 };
 
@@ -51,6 +53,6 @@ exports.deleteCategory = async (req, res) => {
         if (!deletedCategory) return res.status(404).json({ message: "Category not found" });
         res.json({ message: "Category deleted successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Error deleting category", error: error.message });
     }
 };
