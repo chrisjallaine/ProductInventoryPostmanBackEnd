@@ -3,19 +3,27 @@ require("dotenv").config();
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        mongoose.set("strictQuery", false); // Prevents strict mode issues
+
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
-        console.error("MongoDB Connection Failed:", error);
-        process.exit(1);
+        console.error("❌ MongoDB Connection Failed:", error.message);
+        process.exit(1); // Exit the process if connection fails
     }
 };
 
-// Handle graceful shutdown
-process.on("SIGINT", async () => {
-    await mongoose.connection.close();
-    console.log("MongoDB Connection Closed. Exiting process...");
-    process.exit(0);
+// Handle MongoDB connection events
+mongoose.connection.on("disconnected", () => {
+    console.warn("⚠️ MongoDB Disconnected. Retrying...");
+});
+
+mongoose.connection.on("error", (err) => {
+    console.error("❌ MongoDB Error:", err);
 });
 
 module.exports = connectDB;
