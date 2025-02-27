@@ -5,17 +5,19 @@ exports.getWarehouses = async (req, res) => {
     const warehouses = await Warehouse.find();
     res.json(warehouses);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ message: "Error retrieving warehouses", error: error.message });
   }
 };
 
 exports.addWarehouse = async (req, res) => {
   try {
-    const { name, location, capacity } = req.body;
-    const warehouse = new Warehouse({ name, location, capacity });
+    const { location, capacity } = req.body;
+    if (!location || !capacity) return res.status(400).json({ message: "All fields are required" });
+
+    const warehouse = new Warehouse({ location, capacity });
     await warehouse.save();
     res.status(201).json(warehouse);
   } catch (error) {
-    res.status(400).json({ error: 'Invalid data' });
+    res.status(400).json({ message: "Error adding warehouse", error: error.message });
   }
 };
