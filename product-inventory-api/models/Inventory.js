@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const inventorySchema = new mongoose.Schema({
     product_id: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
     warehouse_id: { type: mongoose.Schema.Types.ObjectId, ref: "Warehouse", required: true },
-    stock: { type: Number, required: true, default: 0},
+    stock_quantity: { type: Number, required: true, default: 0 }, // Updated field name to match schema
     lastUpdated: { type: Date, default: Date.now }
 });
 
