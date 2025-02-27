@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const WarehouseSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  location: { type: String, required: true },
-  capacity: { type: Number, required: true }
+const warehouseSchema = new mongoose.Schema({
+    location: { type: String, required: true },
+    capacity: { type: Number, required: true, min: 0 }, // Added min constraint
 });
 
-module.exports = mongoose.model('Warehouse', WarehouseSchema);
+module.exports = mongoose.model("Warehouse", warehouseSchema);
