@@ -1,7 +1,7 @@
-const Warehouse = require("../models/Warehouse"); // Ensure this model exists
+const Warehouse = require("../models/Warehouse");
 
-// Get all warehouses
-exports.getWarehouses = async (req, res) => {
+//
+const getWarehouses = async (req, res) => {
     try {
         const warehouses = await Warehouse.find();
         res.status(200).json(warehouses);
@@ -10,7 +10,7 @@ exports.getWarehouses = async (req, res) => {
     }
 };
 
-// Get a single warehouse by ID
+// 
 const getWarehouseById = async (req, res) => {
     try {
         const warehouse = await Warehouse.findById(req.params.id);
@@ -21,9 +21,7 @@ const getWarehouseById = async (req, res) => {
     }
 };
 
-
-// Create a new warehouse (Fixed function name)
-exports.createWarehouse = async (req, res) => {
+const createWarehouse = async (req, res) => {
     try {
         const { location, capacity } = req.body;
         const newWarehouse = new Warehouse({ location, capacity });
@@ -34,7 +32,6 @@ exports.createWarehouse = async (req, res) => {
     }
 };
 
-// Update a warehouse
 const updateWarehouse = async (req, res) => {
     try {
         const updatedWarehouse = await Warehouse.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -45,7 +42,6 @@ const updateWarehouse = async (req, res) => {
     }
 };
 
-// Delete a warehouse
 const deleteWarehouse = async (req, res) => {
     try {
         const deletedWarehouse = await Warehouse.findByIdAndDelete(req.params.id);
@@ -56,10 +52,11 @@ const deleteWarehouse = async (req, res) => {
     }
 };
 
-module.exports = { 
-    getWarehouses, 
-    getWarehouseById, 
-    createWarehouse, 
-    updateWarehouse, 
-    deleteWarehouse 
+
+module.exports = {
+    getWarehouses,
+    getWarehouseById,
+    createWarehouse,
+    updateWarehouse,
+    deleteWarehouse
 };
