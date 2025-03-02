@@ -1,7 +1,7 @@
 const Warehouse = require("../models/Warehouse"); // Ensure this model exists
 
 // Get all warehouses
-const getWarehouses = async (req, res) => {
+exports.getWarehouses = async (req, res) => {
     try {
         const warehouses = await Warehouse.find();
         res.status(200).json(warehouses);
@@ -21,8 +21,9 @@ const getWarehouseById = async (req, res) => {
     }
 };
 
-// Create a new warehouse
-const createWarehouse = async (req, res) => {
+
+// Create a new warehouse (Fixed function name)
+exports.createWarehouse = async (req, res) => {
     try {
         const { location, capacity } = req.body;
         const newWarehouse = new Warehouse({ location, capacity });
