@@ -1,6 +1,6 @@
 const Category = require("../models/Category");
 
-// @desc Get all categories
+// Get all categories
 exports.getCategories = async (req, res) => {
     try {
         const categories = await Category.find();
@@ -10,7 +10,7 @@ exports.getCategories = async (req, res) => {
     }
 };
 
-// @desc Get a single category by ID
+// Get a single category by ID
 exports.getCategoryById = async (req, res) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -21,7 +21,7 @@ exports.getCategoryById = async (req, res) => {
     }
 };
 
-// @desc Create a new category
+// Create a new category
 exports.createCategory = async (req, res) => {
     try {
         const { name } = req.body;
@@ -35,7 +35,7 @@ exports.createCategory = async (req, res) => {
     }
 };
 
-// @desc Update a category
+// Update a category
 exports.updateCategory = async (req, res) => {
     try {
         const updatedCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -46,7 +46,7 @@ exports.updateCategory = async (req, res) => {
     }
 };
 
-// @desc Delete a category
+// Delete a category
 exports.deleteCategory = async (req, res) => {
     try {
         const deletedCategory = await Category.findByIdAndDelete(req.params.id);
@@ -56,3 +56,4 @@ exports.deleteCategory = async (req, res) => {
         res.status(500).json({ message: "Error deleting category", error: error.message });
     }
 };
+
