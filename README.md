@@ -29,6 +29,11 @@ npm install express mongoose dotenv bcryptjs jsonwebtoken cors morgan stripe
 npm install --save-dev nodemon
 ```
 
+### Open Connection:
+```sh
+nodemon index.js
+```
+
 ### Project Directory Structure:
 ```
 product-inventory-api/
@@ -36,12 +41,29 @@ product-inventory-api/
 │   ├── database.js       # MongoDB connection
 │-- models/
 │   ├── Product.js        # Mongoose schema for products
+    |---Inventory.js
+    |--- Category.js
+    |---Supplier.js
+    |---Warehouse.js
 │-- routes/
 │   ├── productRoutes.js  # Product API endpoints
+    |--- inventoryRoutes.js
+    |--- supplierRoutes.js
+    |--- warehouseRoutes.js
+    |---categoryRoutes.js
 │-- controllers/
 │   ├── productController.js # CRUD logic for products
+    |---inventoryController.js
+    |---warehouseCntroller.js
+    |---categoryController.js
+    |---supplierController.js
 │-- .env                   # Environment variables
 │-- index.js               # Entry point
+|-- requirements.txt
+|--testing/              # Syntax to TEST on POSTAMN
+    |-- GET.md
+    |-- POST.md
+    |-- SystemManipulation.md
 │-- package.json
 ```
 
