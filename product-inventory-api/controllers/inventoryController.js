@@ -3,12 +3,15 @@ const Inventory = require("../models/Inventory");
 // @desc Get all inventory items
 exports.getInventory = async (req, res) => {
     try {
-        const inventory = await Inventory.find().populate("product_id warehouse_id");
+        const inventory = await Inventory.find()
+            .populate("product_id")
+            .populate("warehouse_id"); // Fixed population format
         res.json(inventory);
     } catch (error) {
         res.status(500).json({ message: "Error retrieving inventory", error: error.message });
     }
 };
+
 
 // @desc Get a single inventory item by ID
 exports.getInventoryById = async (req, res) => {
