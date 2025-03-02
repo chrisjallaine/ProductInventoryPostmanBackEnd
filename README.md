@@ -68,5 +68,5 @@ product-inventory-api/
 
 ### To Clone:
 ```sh
-git clone https://github.com/chrisjallaine/ProductInventoryPostman.git
+git clone https://github.com/chrisjallaine/ProductInventoryPostmanBackEnd.git
 ```
