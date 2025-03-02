@@ -5,11 +5,11 @@ const {
     createWarehouse,
     updateWarehouse,
     deleteWarehouse
-} = require("../controllers/warehouseController"); 
+} = require("../controllers/warehouseController");
 
 const router = express.Router();
 
-// Routes
+// ✅ Define all warehouse routes
 router.get("/", getWarehouses);
 router.get("/:id", getWarehouseById);
 router.post("/", createWarehouse);

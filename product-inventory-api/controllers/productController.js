@@ -23,14 +23,20 @@ exports.getProductById = async (req, res) => {
     }
 };
 
-// Create a new product
 exports.createProduct = async (req, res) => {
     try {
-        const newProduct = new Product(req.body);
+        const { name, description, price, category, supplier } = req.body;
+
+        if (!name || !price || !category || !supplier) {
+            return res.status(400).json({ message: "All required fields must be filled" });
+        }
+
+        const newProduct = new Product({ name, description, price, category, supplier });
         await newProduct.save();
+
         res.status(201).json(newProduct);
     } catch (error) {
-        res.status(400).json({ message: "Error adding product" });
+        res.status(500).json({ message: "Error adding product", error: error.message });
     }
 };
 
