@@ -1,5 +1,4 @@
-# ProductInventoryPostman
-![image](479992084_2151873048590488_5528367802897626255_n.png)
+# ProductInventoryPostmanBackEnd
 
 ## Integration of POSTMAN
 
