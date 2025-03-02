@@ -2,17 +2,17 @@ const express = require("express");
 const {
     getWarehouses,
     getWarehouseById,
-    createWarehouse, // Fixed function name
+    createWarehouse,
     updateWarehouse,
     deleteWarehouse
-} = require("../controllers/warehouseController");
+} = require("../controllers/warehouseController"); 
 
 const router = express.Router();
 
 // Routes
 router.get("/", getWarehouses);
 router.get("/:id", getWarehouseById);
-router.post("/", createWarehouse); // Fixed function call
+router.post("/", createWarehouse);
 router.put("/:id", updateWarehouse);
 router.delete("/:id", deleteWarehouse);
 
