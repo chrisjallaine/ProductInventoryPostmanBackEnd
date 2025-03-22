@@ -1,0 +1,101 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import csv
+
+app = FastAPI()
+
+# Middleware to allow cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # This allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # This allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # This allows all headers
+)
+
+# Define Pydantic models for user and task data
+class User(BaseModel):
+    username: str
+    password: str
+
+class Task(BaseModel):
+    task: str
+    deadline: str
+    user: str
+
+# Helper function to read users from CSV
+def read_users():
+    users = {}
+    try:
+        with open('users.csv', mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                users[row[0]] = row[1]  # username: password
+    except FileNotFoundError:
+        pass  # If no file exists, return empty dict
+    return users
+
+# Helper function to write users to CSV
+def write_user(user: User):
+    with open('users.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([user.username, user.password])
+
+# Helper function to read tasks from CSV
+def read_tasks():
+    tasks = []
+    try:
+        with open('tasks.csv', mode='r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                tasks.append({'task': row[0], 'deadline': row[1], 'user': row[2]})
+    except FileNotFoundError:
+        pass  # If no file exists, return empty list
+    return tasks
+
+# Helper function to write tasks to CSV
+def write_task(task: Task):
+    with open('tasks.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([task.task, task.deadline, task.user])
+
+@app.post("/login/")
+async def user_login(user: User):
+    """
+    Handles the user login process. Checks if the username and password match.
+    """
+    users = read_users()
+    if user.username in users and users[user.username] == user.password:
+        return {"status": "Logged in"}
+    return {"status": "Login failed", "message": "Invalid username or password"}
+
+@app.post("/create_user/")
+async def create_user(user: User):
+    """
+    Creates a new user by adding their username and password.
+    """
+    users = read_users()
+    if user.username in users:
+        return {"status": "User already exists"}
+    write_user(user)
+    return {"status": "User Created"}
+
+@app.post("/create_task/")
+async def create_task(task: Task):
+    """
+    Creates a new task by adding the task description, deadline, and associated user.
+    """
+    tasks = read_tasks()
+    tasks.append({'task': task.task, 'deadline': task.deadline, 'user': task.user})
+    write_task(task)
+    return {"status": "Task Created"}
+
+@app.get("/get_tasks/")
+async def get_tasks(name: str):
+    """
+    Retrieves the list of tasks associated with a specific user.
+    """
+    tasks = read_tasks()
+    user_tasks = [task for task in tasks if task['user'] == name]
+    return {"tasks": user_tasks}
