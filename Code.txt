@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import csv
+import os
 
 app = FastAPI()
 
@@ -24,11 +25,17 @@ class Task(BaseModel):
     deadline: str
     user: str
 
+# Directory for data files
+DATA_DIR = 'data'
+
+# Ensure the data directory exists
+os.makedirs(DATA_DIR, exist_ok=True)
+
 # Helper function to read users from CSV
 def read_users():
     users = {}
     try:
-        with open('users.csv', mode='r') as file:
+        with open(os.path.join(DATA_DIR, 'users.csv'), mode='r') as file:
             reader = csv.reader(file)
             for row in reader:
                 users[row[0]] = row[1]  # username: password
@@ -38,7 +45,7 @@ def read_users():
 
 # Helper function to write users to CSV
 def write_user(user: User):
-    with open('users.csv', mode='a', newline='') as file:
+    with open(os.path.join(DATA_DIR, 'users.csv'), mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([user.username, user.password])
 
@@ -46,7 +53,7 @@ def write_user(user: User):
 def read_tasks():
     tasks = []
     try:
-        with open('tasks.csv', mode='r') as file:
+        with open(os.path.join(DATA_DIR, 'tasks.csv'), mode='r') as file:
             reader = csv.reader(file)
             for row in reader:
                 tasks.append({'task': row[0], 'deadline': row[1], 'user': row[2]})
@@ -56,7 +63,7 @@ def read_tasks():
 
 # Helper function to write tasks to CSV
 def write_task(task: Task):
-    with open('tasks.csv', mode='a', newline='') as file:
+    with open(os.path.join(DATA_DIR, 'tasks.csv'), mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([task.task, task.deadline, task.user])
 
