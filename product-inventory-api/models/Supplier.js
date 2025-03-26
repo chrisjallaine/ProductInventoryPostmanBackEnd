@@ -1,12 +1,21 @@
 const mongoose = require("mongoose");
 
-const supplierSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    contact_info: { type: String }, // Updated field name for consistency
-    email: { type: String, unique: true, required: true },
-    address: { type: String },
+const supplierSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    contactInfo: { type: String, trim: true }, // Renamed for consistency & trimmed
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
+    },
+    address: { type: String, trim: true },
     productsSupplied: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-    createdAt: { type: Date, default: Date.now }
-});
+  },
+  { timestamps: true } // Automatically manages createdAt & updatedAt
+);
 
 module.exports = mongoose.model("Supplier", supplierSchema);
