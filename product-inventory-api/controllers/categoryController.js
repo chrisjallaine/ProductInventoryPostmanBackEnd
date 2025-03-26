@@ -1,4 +1,5 @@
 const Category = require("../models/Category");
+const Product = require("../models/Product"); // Import Product model
 
 // Get all categories
 exports.getCategories = async (req, res) => {
@@ -18,6 +19,24 @@ exports.getCategoryById = async (req, res) => {
         res.json(category);
     } catch (error) {
         res.status(500).json({ message: "Error retrieving category", error: error.message });
+    }
+};
+
+// Get all products in a certain category
+exports.getProductsByCategory = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+        
+        // Check if category exists
+        const category = await Category.findById(categoryId);
+        if (!category) return res.status(404).json({ message: "Category not found" });
+
+        // Fetch products in this category
+        const products = await Product.find({ category_id: categoryId }).populate("category_id", "name");
+        
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving products for category", error: error.message });
     }
 };
 
@@ -56,4 +75,3 @@ exports.deleteCategory = async (req, res) => {
         res.status(500).json({ message: "Error deleting category", error: error.message });
     }
 };
-
