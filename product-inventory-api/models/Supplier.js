@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const supplierSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
-    contactInfo: { type: String, trim: true }, // Renamed for consistency & trimmed
+    contact: { type: String, trim: true }, // Matches ERD naming
     email: {
       type: String,
       required: true,
@@ -13,9 +13,8 @@ const supplierSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
     },
     address: { type: String, trim: true },
-    productsSupplied: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
   },
-  { timestamps: true } // Automatically manages createdAt & updatedAt
+  { timestamps: true } // Auto-generates createdAt & updatedAt fields
 );
 
 module.exports = mongoose.model("Supplier", supplierSchema);
