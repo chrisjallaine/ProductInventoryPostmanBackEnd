@@ -1,4 +1,5 @@
 const Supplier = require("../models/Supplier"); // Ensure this model exists
+const Product = require("../models/Product"); // Import Product model
 
 // Get all suppliers
 const getSuppliers = async (req, res) => {
@@ -21,11 +22,30 @@ const getSupplierById = async (req, res) => {
     }
 };
 
+// Get supplier by a given product ID
+const getSupplierByProduct = async (req, res) => {
+    try {
+        const productId = req.params.product_id;
+
+        // Find the product by ID
+        const product = await Product.findById(productId);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        // Find the supplier based on the product's supplier_id
+        const supplier = await Supplier.findById(product.supplier_id);
+        if (!supplier) return res.status(404).json({ message: "Supplier not found for this product" });
+
+        res.status(200).json(supplier);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Create a new supplier
 const createSupplier = async (req, res) => {
     try {
-        const { name, contact_info } = req.body;
-        const newSupplier = new Supplier({ name, contact_info });
+        const { name, contact_info, email, address } = req.body;
+        const newSupplier = new Supplier({ name, contact_info, email, address });
         await newSupplier.save();
         res.status(201).json(newSupplier);
     } catch (error) {
@@ -58,6 +78,7 @@ const deleteSupplier = async (req, res) => {
 module.exports = { 
     getSuppliers, 
     getSupplierById, 
+    getSupplierByProduct,
     createSupplier, 
     updateSupplier, 
     deleteSupplier 
