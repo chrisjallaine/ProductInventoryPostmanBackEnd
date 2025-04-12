@@ -1,35 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    description: String,
-    price: {
-        type: Number,
-        required: true,
-        min: 0
-    },
-    category_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true
-    },
-    supplier_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Supplier',
-        required: true
-    }
+  name: { type: String, required: true },
+  sku: { type: String, required: true, unique: true },
+  description: { type: String },
+  price: { type: Number, required: true, min: 0 },
+  reorderLevel: { type: Number, default: 10 }, // used for low-stock alerts
+  quantity: { type: Number, required: true, min: 0 },
+  category_id: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+  supplier_id: { type: mongoose.Schema.Types.ObjectId, ref: "Supplier", required: true },
+  alert: { type: Boolean, default: false }
 }, { timestamps: true });
 
-// Virtual: compute total quantity from inventory
-productSchema.virtual('quantity', {
-    ref: 'Inventory',
-    localField: '_id',
-    foreignField: 'product_id',
-    justOne: false
-});
-
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model("Product", productSchema);
