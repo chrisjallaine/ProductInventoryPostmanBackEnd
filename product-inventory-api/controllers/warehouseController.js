@@ -1,30 +1,24 @@
-const Warehouse = require('../models/Warehouse');
-const Inventory = require('../models/Inventory');
+const Warehouse = require("../models/Warehouse");
 
-exports.createWarehouse = async (req, res) => {
+exports.getWarehouseById = async (req, res) => {
   try {
-    const warehouse = await Warehouse.create(req.body);
-    res.status(201).json(warehouse);
+    const warehouse = await Warehouse.findById(req.params.id);
+    if (!warehouse) return res.status(404).json({ message: "Warehouse not found" });
+    res.json(warehouse);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.getAllWarehouses = async (req, res) => {
+// 🔧 Utilization %
+exports.getUtilization = async (req, res) => {
   try {
-    const warehouses = await Warehouse.find();
-    res.json(warehouses);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+    const warehouse = await Warehouse.findById(req.params.id);
+    if (!warehouse) return res.status(404).json({ message: "Warehouse not found" });
 
-exports.getWarehouseStock = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const stock = await Inventory.find({ warehouse_id: id }).populate('product_id');
-    res.json(stock);
+    const utilization = (warehouse.currentUsage / warehouse.capacity) * 100;
+    res.json({ utilization: `${utilization.toFixed(2)}%` });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
