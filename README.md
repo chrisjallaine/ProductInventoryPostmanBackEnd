@@ -36,34 +36,35 @@ nodemon index.js
 ### Project Directory Structure:
 ```
 product-inventory-api/
-│-- config/
-│   ├── database.js       # MongoDB connection
-│-- models/
-│   ├── Product.js        # Mongoose schema for products
-    |---Inventory.js
-    |--- Category.js
-    |---Supplier.js
-    |---Warehouse.js
-│-- routes/
-│   ├── productRoutes.js  # Product API endpoints
-    |--- inventoryRoutes.js
-    |--- supplierRoutes.js
-    |--- warehouseRoutes.js
-    |---categoryRoutes.js
-│-- controllers/
-│   ├── productController.js # CRUD logic for products
-    |---inventoryController.js
-    |---warehouseCntroller.js
-    |---categoryController.js
-    |---supplierController.js
-│-- .env                   # Environment variables
-│-- index.js               # Entry point
-|-- requirements.txt
-|--testing/              # Syntax to TEST on POSTAMN
-    |-- GET.md
-    |-- POST.md
-    |-- SystemManipulation.md
-│-- package.json
+│
+├── config/
+├── models/
+├── routes/
+├── controllers/
+├── testing/
+├── .env
+├── index.js
+├── package.json
+├── requirements.txt
+│
+├── frontend/                        
+│   ├── public/
+│   ├── src/
+│   │   ├── api/                    
+│   │   │   └── axios.js
+│   │   ├── components/            
+│   │   ├── pages/                 
+│   │   │   ├── ProductPage.js
+│   │   │   ├── InventoryPage.js
+│   │   │   ├── CategoryPage.js
+│   │   │   ├── SupplierPage.js
+│   │   │   └── WarehousePage.js
+│   │   ├── App.js                 
+│   │   └── index.js
+│   ├── .env                       
+│   ├── package.json
+│   └── README.md
+
 ```
 
 ### To Clone:
