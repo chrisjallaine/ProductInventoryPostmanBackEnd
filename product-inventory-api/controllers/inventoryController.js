@@ -7,26 +7,23 @@ exports.createInventoryEntry = async (req, res) => {
   try {
     const { warehouse_id, product_id, stock } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(product_id) || !mongoose.Types.ObjectId.isValid(warehouse_id)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(product_id) ||
+      !mongoose.Types.ObjectId.isValid(warehouse_id)
+    ) {
       return res.status(400).json({ message: "Invalid product_id or warehouse_id" });
     }
 
+    const productObjId = new mongoose.Types.ObjectId(product_id);
+    const warehouseObjId = new mongoose.Types.ObjectId(warehouse_id);
+
     const totalInWarehouse = await Inventory.aggregate([
-      {
-        $match: {
-          warehouse_id: new mongoose.Types.ObjectId(warehouse_id)
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$stock" }
-        }
-      }
+      { $match: { warehouse_id: warehouseObjId } },
+      { $group: { _id: null, total: { $sum: "$stock" } } }
     ]);
 
     const currentTotal = totalInWarehouse[0]?.total || 0;
-    const warehouse = await Warehouse.findById(warehouse_id);
+    const warehouse = await Warehouse.findById(warehouseObjId);
 
     if (!warehouse) {
       return res.status(404).json({ message: "Warehouse not found" });
@@ -37,8 +34,8 @@ exports.createInventoryEntry = async (req, res) => {
     }
 
     const entry = await Inventory.create({
-      product_id,
-      warehouse_id,
+      product_id: productObjId,
+      warehouse_id: warehouseObjId,
       stock
     });
 
@@ -83,7 +80,8 @@ exports.getInventoryByProduct = async (req, res) => {
       return res.status(400).json({ message: "Invalid product ID" });
     }
 
-    const inventory = await Inventory.find({ product_id: id }).populate("warehouse_id");
+    const inventory = await Inventory.find({ product_id: id })
+      .populate("warehouse_id");
 
     if (!inventory || inventory.length === 0) {
       return res.status(404).json({ message: "No inventory found for this product" });
@@ -95,7 +93,7 @@ exports.getInventoryByProduct = async (req, res) => {
   }
 };
 
-// Get all low-stock items (threshold from query param)
+// Get all low-stock items
 exports.getLowStockItems = async (req, res) => {
   try {
     const threshold = parseInt(req.query.threshold) || 100;
