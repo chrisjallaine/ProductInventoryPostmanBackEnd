@@ -1,10 +1,22 @@
-const express = require('express');
-const router = express.Router();
-const categoryController = require('../controllers/categoryController');
+const express = require("express");
+const {
+  getCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getTotalStockByCategory
+} = require("../controllers/categoryController");
 
-router.post('/', categoryController.createCategory);
-router.get('/', categoryController.getAllCategories);
-router.get('/:id/products', categoryController.getCategoryWithProducts);
-router.get('/summary/analytics', categoryController.getCategorySummary);
+const router = express.Router();
+
+router.get("/", getCategories);
+router.get("/:id", getCategoryById);
+router.post("/", createCategory);
+router.put("/:id", updateCategory);
+router.delete("/:id", deleteCategory);
+
+// Custom analytics
+router.get("/:id/stock", getTotalStockByCategory);
 
 module.exports = router;
