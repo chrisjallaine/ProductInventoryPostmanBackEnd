@@ -1,11 +1,17 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const warehouseSchema = new mongoose.Schema(
-  {
-    location: { type: String, required: true, trim: true, unique: true },
-    capacity: { type: Number, required: true, min: 0 },
-  },
-  { timestamps: true } // Auto-generates createdAt & updatedAt fields
-);
+const warehouseSchema = new mongoose.Schema({
+    location: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    capacity: {
+        type: Number,
+        default: 0,
+        min: [0, 'Capacity must be a non-negative number']
+    }
+}, { timestamps: true });
 
-module.exports = mongoose.model("Warehouse", warehouseSchema);
+module.exports = mongoose.model('Warehouse', warehouseSchema);
