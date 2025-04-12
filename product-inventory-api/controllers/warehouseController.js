@@ -1,71 +1,30 @@
-const Warehouse = require("../models/Warehouse");
+const Warehouse = require('../models/Warehouse');
+const Inventory = require('../models/Inventory');
 
-// Get all warehouses
-const getWarehouses = async (req, res) => {
-    try {
-        const warehouses = await Warehouse.find();
-        res.status(200).json(warehouses);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+exports.createWarehouse = async (req, res) => {
+  try {
+    const warehouse = await Warehouse.create(req.body);
+    res.status(201).json(warehouse);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
 };
 
-// Get a single warehouse by ID
-const getWarehouseById = async (req, res) => {
-    try {
-        const warehouse = await Warehouse.findById(req.params.id);
-        if (!warehouse) return res.status(404).json({ message: "Warehouse not found" });
-        res.status(200).json(warehouse);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+exports.getAllWarehouses = async (req, res) => {
+  try {
+    const warehouses = await Warehouse.find();
+    res.json(warehouses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
-// Create a new warehouse (Fixed duplicate issue)
-const createWarehouse = async (req, res) => {
-    try {
-        const { location, capacity } = req.body;
-
-        if (!location || capacity === undefined) {
-            return res.status(400).json({ message: "Location and capacity are required" });
-        }
-
-        const newWarehouse = new Warehouse({ location, capacity });
-        await newWarehouse.save();
-
-        res.status(201).json(newWarehouse);
-    } catch (error) {
-        res.status(500).json({ message: "Error creating warehouse", error: error.message });
-    }
-};
-
-//  Update warehouse
-const updateWarehouse = async (req, res) => {
-    try {
-        const updatedWarehouse = await Warehouse.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedWarehouse) return res.status(404).json({ message: "Warehouse not found" });
-        res.status(200).json(updatedWarehouse);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-//  Delete warehouse
-const deleteWarehouse = async (req, res) => {
-    try {
-        const deletedWarehouse = await Warehouse.findByIdAndDelete(req.params.id);
-        if (!deletedWarehouse) return res.status(404).json({ message: "Warehouse not found" });
-        res.status(200).json({ message: "Warehouse deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-//  Export all functions properly
-module.exports = {
-    getWarehouses,
-    getWarehouseById,
-    createWarehouse,
-    updateWarehouse,
-    deleteWarehouse
+exports.getWarehouseStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const stock = await Inventory.find({ warehouse_id: id }).populate('product_id');
+    res.json(stock);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
