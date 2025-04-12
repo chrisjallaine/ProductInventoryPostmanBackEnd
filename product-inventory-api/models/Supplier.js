@@ -1,20 +1,19 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const supplierSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    contact: { type: String, trim: true }, // Matches ERD naming
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
+const supplierSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
     },
-    address: { type: String, trim: true },
-  },
-  { timestamps: true } // Auto-generates createdAt & updatedAt fields
-);
+    contact: String,
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    address: String
+}, { timestamps: true });
 
-module.exports = mongoose.model("Supplier", supplierSchema);
+module.exports = mongoose.model('Supplier', supplierSchema);
