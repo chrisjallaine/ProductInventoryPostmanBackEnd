@@ -1,68 +1,26 @@
-const Inventory = require('../models/Inventory');
-const Warehouse = require('../models/Warehouse');
+const { Types } = require("mongoose"); // ✅ Import Mongoose types
 
-exports.createInventoryEntry = async (req, res) => {
+// Inside your createInventory controller:
+exports.createInventory = async (req, res) => {
   try {
-    const { warehouse_id, stock } = req.body;
+    const { product_id, warehouse_id, stock } = req.body;
 
-    // Optional: Validate warehouse capacity
-    const totalInWarehouse = await Inventory.aggregate([
-      { $match: { warehouse_id: require('mongoose').Types.ObjectId(warehouse_id) } },
-      { $group: { _id: null, total: { $sum: "$stock" } } }
-    ]);
-    const currentTotal = totalInWarehouse[0]?.total || 0;
-    const warehouse = await Warehouse.findById(warehouse_id);
-    if (currentTotal + stock > warehouse.capacity) {
-      return res.status(400).json({ message: "Exceeds warehouse capacity" });
+    // Validate ObjectIds
+    if (!Types.ObjectId.isValid(product_id) || !Types.ObjectId.isValid(warehouse_id)) {
+      return res.status(400).json({ error: "Invalid product_id or warehouse_id" });
     }
 
-    const entry = await Inventory.create(req.body);
-    res.status(201).json(entry);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+    const inventory = new Inventory({
+      product_id: new Types.ObjectId(product_id),
+      warehouse_id: new Types.ObjectId(warehouse_id),
+      stock
+    });
 
-exports.updateStockInWarehouse = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { stock } = req.body;
+    const savedInventory = await inventory.save();
+    res.status(201).json(savedInventory);
 
-    const updated = await Inventory.findByIdAndUpdate(
-      id,
-      { stock, lastUpdated: Date.now() },
-      { new: true }
-    );
-    res.json(updated);
   } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-exports.getInventoryByProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await Inventory.find({ product_id: id }).populate('warehouse_id');
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-exports.getLowStockItems = async (req, res) => {
-  try {
-    const threshold = parseInt(req.query.threshold || '10');
-    const result = await Inventory.aggregate([
-      {
-        $group: {
-          _id: "$product_id",
-          total: { $sum: "$stock" }
-        }
-      },
-      { $match: { total: { $lt: threshold } } }
-    ]);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error creating inventory:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
