@@ -1,18 +1,28 @@
-const mongoose = require('mongoose');
-const Inventory = require('../models/Inventory');
-const Warehouse = require('../models/Warehouse');
+const mongoose = require("mongoose");
+const Inventory = require("../models/Inventory");
+const Warehouse = require("../models/Warehouse");
 
+// Create a new inventory entry
 exports.createInventoryEntry = async (req, res) => {
   try {
     const { warehouse_id, product_id, stock } = req.body;
 
-    // Correct way to instantiate ObjectId
-    const warehouseObjectId = new mongoose.Types.ObjectId(warehouse_id);
+    if (!mongoose.Types.ObjectId.isValid(product_id) || !mongoose.Types.ObjectId.isValid(warehouse_id)) {
+      return res.status(400).json({ message: "Invalid product_id or warehouse_id" });
+    }
 
-    // Optional: Validate warehouse capacity
     const totalInWarehouse = await Inventory.aggregate([
-      { $match: { warehouse_id: warehouseObjectId } },
-      { $group: { _id: null, total: { $sum: "$stock" } } }
+      {
+        $match: {
+          warehouse_id: new mongoose.Types.ObjectId(warehouse_id)
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$stock" }
+        }
+      }
     ]);
 
     const currentTotal = totalInWarehouse[0]?.total || 0;
@@ -26,7 +36,6 @@ exports.createInventoryEntry = async (req, res) => {
       return res.status(400).json({ message: "Exceeds warehouse capacity" });
     }
 
-    // Proceed to create
     const entry = await Inventory.create({
       product_id,
       warehouse_id,
@@ -35,6 +44,68 @@ exports.createInventoryEntry = async (req, res) => {
 
     res.status(201).json(entry);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ message: "Error creating inventory", error: err.message });
+  }
+};
+
+// Update stock for an inventory record
+exports.updateStockInWarehouse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { stock } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid inventory ID" });
+    }
+
+    const updated = await Inventory.findByIdAndUpdate(
+      id,
+      { stock },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Inventory entry not found" });
+    }
+
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating stock", error: error.message });
+  }
+};
+
+// Get all inventory records for a specific product
+exports.getInventoryByProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID" });
+    }
+
+    const inventory = await Inventory.find({ product_id: id }).populate("warehouse_id");
+
+    if (!inventory || inventory.length === 0) {
+      return res.status(404).json({ message: "No inventory found for this product" });
+    }
+
+    res.status(200).json(inventory);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching inventory", error: error.message });
+  }
+};
+
+// Get all low-stock items (threshold from query param)
+exports.getLowStockItems = async (req, res) => {
+  try {
+    const threshold = parseInt(req.query.threshold) || 100;
+
+    const lowStock = await Inventory.find({ stock: { $lt: threshold } })
+      .populate("product_id")
+      .populate("warehouse_id");
+
+    res.status(200).json(lowStock);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching low stock items", error: error.message });
   }
 };
