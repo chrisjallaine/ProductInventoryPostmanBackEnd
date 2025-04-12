@@ -1,33 +1,26 @@
-const Supplier = require('../models/Supplier');
-const Product = require('../models/Product');
+const Supplier = require("../models/Supplier");
+const Product = require("../models/Product");
 
-exports.createSupplier = async (req, res) => {
+// Log Delivery
+exports.recordSupplierDelivery = async (req, res) => {
   try {
-    const supplier = await Supplier.create(req.body);
-    res.status(201).json(supplier);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+    const { supplierId } = req.params;
+    const { product_id, quantity } = req.body;
 
-exports.getAllSuppliers = async (req, res) => {
-  try {
-    const suppliers = await Supplier.find();
-    res.json(suppliers);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+    const updated = await Supplier.findByIdAndUpdate(
+      supplierId,
+      {
+        $push: {
+          deliveryLogs: { product_id, quantity, date: new Date() }
+        },
+        $inc: { orderCount: 1 }
+      },
+      { new: true }
+    );
 
-exports.getSupplierWithProducts = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const supplier = await Supplier.findById(id);
-    if (!supplier) return res.status(404).json({ message: 'Supplier not found' });
-
-    const products = await Product.find({ supplier_id: id });
-    res.json({ supplier, products });
+    if (!updated) return res.status(404).json({ message: "Supplier not found" });
+    res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
