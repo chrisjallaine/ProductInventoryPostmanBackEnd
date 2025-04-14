@@ -62,13 +62,20 @@ exports.deleteCategory = async (req, res) => {
   }
 };
 
-// Get Category stock
+// Get total stock in a category (relational query)
 exports.getCategoryStock = async (req, res) => {
   try {
-    const products = await Product.find({ category_id: req.params.id });
-    const total = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-    res.json({ category: req.params.id, totalStock: total });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const Product = require("../models/Product");
+    const categoryId = req.params.id;
+    const products = await Product.find({ category_id: categoryId });
+
+    const totalStock = products.reduce((sum, product) => sum + (product.quantity || 0), 0);
+
+    res.status(200).json({
+      category: categoryId,
+      totalStock
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
