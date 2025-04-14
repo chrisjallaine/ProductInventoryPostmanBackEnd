@@ -1,81 +1,124 @@
-const Product = require("../models/Product");
-const Category = require("../models/Category");
-const Supplier = require("../models/Supplier");
+const Product = require('../models/Product');
+const Inventory = require('../models/Inventory');
+const Supplier = require('../models/Supplier');
+const Warehouse = require('../models/Warehouse');
 
-// Create
+// Create Product
 exports.createProduct = async (req, res) => {
   try {
-    const { name, sku, description, price, quantity, reorderLevel, category_id, supplier_id } = req.body;
-
-    const category = await Category.findById(category_id);
-    if (!category) return res.status(404).json({ message: "Category not found" });
-
-    const supplier = await Supplier.findById(supplier_id);
-    if (!supplier) return res.status(404).json({ message: "Supplier not found" });
-
-    const newProduct = await Product.create({
-      name, sku, description, price, quantity, reorderLevel, category_id, supplier_id
-    });
-
-    await Category.findByIdAndUpdate(category_id, { $inc: { productCount: 1 } });
-    res.status(201).json(newProduct);
+    const product = await Product.create(req.body);
+    res.status(201).json(product);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Get All
-exports.getProducts = async (req, res) => {
+// Get All Products
+exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find()
-      .populate("category_id", "name")
-      .populate("supplier_id", "name contact_info email");
-    res.status(200).json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const products = await Product.find().populate('category_id supplier_id');
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Get by ID
+// Get Product by ID
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-      .populate("category_id")
-      .populate("supplier_id");
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const product = await Product.findById(req.params.id).populate('category_id supplier_id');
+    if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Update
+// Get Product by SKU
+exports.getProductBySKU = async (req, res) => {
+  try {
+    const product = await Product.findOne({ sku: req.params.sku }).populate('category_id supplier_id');
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update Product
 exports.updateProduct = async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Product not found" });
     res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Delete
+// Delete Product
 exports.deleteProduct = async (req, res) => {
   try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Product not found" });
-    await Category.findByIdAndUpdate(deleted.category_id, { $inc: { productCount: -1 } });
-    res.json({ message: "Product deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Product deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Custom 🔍
-exports.getProductBySKU = async (req, res) => {
-  const { sku } = req.params;
-  const product = await Product.findOne({ sku });
-  if (!product) return res.status(404).json({ message: "SKU not found" });
-  res.json(product);
+// Get all products from a warehouse
+exports.getProductsByWarehouse = async (req, res) => {
+  try {
+    const inventory = await Inventory.find({ warehouse_id: req.params.warehouseId });
+    const productIds = inventory.map(item => item.product_id);
+    const products = await Product.find({ _id: { $in: productIds } }).populate('category_id supplier_id');
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get all products from a category
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    const products = await Product.find({ category_id: req.params.categoryId }).populate('supplier_id');
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get all products from a supplier
+exports.getProductsBySupplier = async (req, res) => {
+  try {
+    const products = await Product.find({ supplier_id: req.params.supplierId }).populate('category_id');
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get all warehouses that store a specific product
+exports.getWarehousesOfProduct = async (req, res) => {
+  try {
+    const inventory = await Inventory.find({ product_id: req.params.productId }).populate('warehouse_id');
+    const warehouses = inventory.map(i => i.warehouse_id);
+    res.json(warehouses);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get supplier of a specific product
+exports.getSupplierOfProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    const supplier = await Supplier.findById(product.supplier_id);
+    if (!supplier) return res.status(404).json({ message: 'Supplier not found' });
+
+    res.json(supplier);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
