@@ -1,12 +1,14 @@
 const express = require("express");
 const {
+  createWarehouse,
   getWarehouseById,
-  getUtilization
+  getWarehouseUtilization
 } = require("../controllers/warehouseController");
 
 const router = express.Router();
 
+router.post("/", createWarehouse);
 router.get("/:id", getWarehouseById);
-router.get("/:id/utilization", getUtilization);
+router.get("/:id/utilization", getWarehouseUtilization);
 
 module.exports = router;
