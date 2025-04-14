@@ -1,7 +1,5 @@
 const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
-const Supplier = require('../models/Supplier');
-const Warehouse = require('../models/Warehouse');
 
 // Create Product
 exports.createProduct = async (req, res) => {
@@ -92,32 +90,6 @@ exports.getProductsBySupplier = async (req, res) => {
   try {
     const products = await Product.find({ supplier_id: req.params.supplierId }).populate('category_id');
     res.json(products);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get all warehouses that store a specific product
-exports.getWarehousesOfProduct = async (req, res) => {
-  try {
-    const inventory = await Inventory.find({ product_id: req.params.productId }).populate('warehouse_id');
-    const warehouses = inventory.map(i => i.warehouse_id);
-    res.json(warehouses);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
-// Get supplier of a specific product
-exports.getSupplierOfProduct = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.productId);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-
-    const supplier = await Supplier.findById(product.supplier_id);
-    if (!supplier) return res.status(404).json({ message: 'Supplier not found' });
-
-    res.json(supplier);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
