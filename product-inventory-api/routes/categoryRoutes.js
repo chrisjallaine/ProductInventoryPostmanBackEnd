@@ -18,6 +18,6 @@ router.put("/:id", updateCategory);
 router.delete("/:id", deleteCategory);
 
 // Analytics route
-router.get("/:id/stock", getTotalStockByCategory);
+router.get("/:id/stock", getCategoryStock);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const Product = require("../models/Product");
 
 // Create single or multiple categories
 exports.createCategory = async (req, res) => {
@@ -62,20 +63,21 @@ exports.deleteCategory = async (req, res) => {
   }
 };
 
-// Get total stock in a category (relational query)
+
+// Get total stock for a category
 exports.getCategoryStock = async (req, res) => {
   try {
-    const Product = require("../models/Product");
     const categoryId = req.params.id;
     const products = await Product.find({ category_id: categoryId });
-
-    const totalStock = products.reduce((sum, product) => sum + (product.quantity || 0), 0);
+    const total = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
 
     res.status(200).json({
       category: categoryId,
-      totalStock
+      totalStock: total
     });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
+
+
