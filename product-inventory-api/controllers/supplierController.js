@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 const Warehouse = require('../models/Warehouse');
 
-// Create Supplier
+// Create a new Supplier
 exports.createSupplier = async (req, res) => {
   try {
     const supplier = new Supplier(req.body);
@@ -62,18 +62,33 @@ exports.logDelivery = async (req, res) => {
   try {
     const { product_id, quantity } = req.body;
     const product = await Product.findById(product_id);
-
     if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // Update Product Quantity
     product.quantity += quantity;
     await product.save();
 
-    res.json({ message: 'Delivery logged and product stock updated', product });
+    // Update Inventory if warehouse is assigned
+    if (product.warehouse_id) {
+      const inventory = await Inventory.findOneAndUpdate(
+        { product_id: product._id, warehouse_id: product.warehouse_id },
+        { $inc: { stock: quantity } },
+        { new: true, upsert: true }
+      );
+      return res.json({
+        message: 'Delivery logged. Product and inventory updated.',
+        product,
+        inventory
+      });
+    }
+
+    res.json({ message: 'Delivery logged. Product stock updated.', product });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Get all suppliers that supply a specific product
+// Get Supplier of a specific Product
 exports.getSuppliersByProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId);
