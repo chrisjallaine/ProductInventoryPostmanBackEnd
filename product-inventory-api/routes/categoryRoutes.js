@@ -1,6 +1,5 @@
 const express = require("express");
 const {
-  getCategories,
   getAllCategories,
   getCategoryById,
   getCategoryByName,
@@ -15,8 +14,7 @@ const {
 const router = express.Router();
 
 // Basic CRUD
-router.get("/", getCategories);
-router.get("/all", getAllCategories);
+router.get("/", getAllCategories);
 router.get("/name/:name", getCategoryByName);
 router.get("/sku/:sku", getCategoryBySKU);
 router.get("/:id", getCategoryById);
