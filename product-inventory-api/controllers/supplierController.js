@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 const Warehouse = require('../models/Warehouse');
 
-// Create a new Supplier
+// Create Supplier
 exports.createSupplier = async (req, res) => {
   try {
     const supplier = new Supplier(req.body);
@@ -64,11 +64,9 @@ exports.logDelivery = async (req, res) => {
     const product = await Product.findById(product_id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    // Update Product Quantity
     product.quantity += quantity;
     await product.save();
 
-    // Update Inventory if warehouse is assigned
     if (product.warehouse_id) {
       const inventory = await Inventory.findOneAndUpdate(
         { product_id: product._id, warehouse_id: product.warehouse_id },
@@ -88,31 +86,41 @@ exports.logDelivery = async (req, res) => {
   }
 };
 
-// Get Supplier of a specific Product
-exports.getSuppliersByProduct = async (req, res) => {
+// Get supplier of a specific product
+exports.getSupplierByProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.productId);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
     const supplier = await Supplier.findById(product.supplier_id);
-    if (!supplier) return res.status(404).json({ error: 'Supplier not found' });
-
     res.json(supplier);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get all suppliers that supply products stored in a warehouse
+// Get all suppliers that supply products in a warehouse
 exports.getSuppliersByWarehouse = async (req, res) => {
   try {
     const inventory = await Inventory.find({ warehouse_id: req.params.warehouseId });
-    const productIds = inventory.map(inv => inv.product_id);
+    const productIds = inventory.map(i => i.product_id);
     const products = await Product.find({ _id: { $in: productIds } });
 
     const supplierIds = [...new Set(products.map(p => p.supplier_id.toString()))];
     const suppliers = await Supplier.find({ _id: { $in: supplierIds } });
 
+    res.json(suppliers);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Get all suppliers that supply products in a category
+exports.getSuppliersByCategory = async (req, res) => {
+  try {
+    const products = await Product.find({ category_id: req.params.categoryId });
+    const supplierIds = [...new Set(products.map(p => p.supplier_id.toString()))];
+    const suppliers = await Supplier.find({ _id: { $in: supplierIds } });
     res.json(suppliers);
   } catch (err) {
     res.status(500).json({ error: err.message });
