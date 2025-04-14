@@ -61,3 +61,14 @@ exports.deleteCategory = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Get Category stock
+exports.getCategoryStock = async (req, res) => {
+  try {
+    const products = await Product.find({ category_id: req.params.id });
+    const total = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+    res.json({ category: req.params.id, totalStock: total });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
