@@ -3,14 +3,21 @@ const Product = require('../models/Product');
 const Inventory = require('../models/Inventory');
 const Warehouse = require('../models/Warehouse');
 
-// Create Supplier
+// Create Supplier(s)
 exports.createSupplier = async (req, res) => {
   try {
-    const supplier = new Supplier(req.body);
-    await supplier.save();
-    res.status(201).json(supplier);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const isArray = Array.isArray(req.body);
+    if (isArray && req.body.length === 0) {
+      return res.status(400).json({ message: "Empty array is not allowed" });
+    }
+
+    const result = isArray
+      ? await Supplier.insertMany(req.body)
+      : await Supplier.create(req.body);
+
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
