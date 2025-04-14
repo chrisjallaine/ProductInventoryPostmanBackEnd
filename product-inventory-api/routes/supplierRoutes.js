@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const {
   createSupplier,
   getAllSuppliers,
@@ -7,22 +6,25 @@ const {
   updateSupplier,
   deleteSupplier,
   logDelivery,
-  getSuppliersByProduct,
-  getSuppliersByWarehouse
+  getSupplierByProduct,
+  getSuppliersByWarehouse,
+  getSuppliersByCategory
 } = require("../controllers/supplierController");
 
-// CRUD operations
+const router = express.Router();
+
 router.post("/", createSupplier);
 router.get("/", getAllSuppliers);
 router.get("/:id", getSupplierById);
 router.put("/:id", updateSupplier);
 router.delete("/:id", deleteSupplier);
 
-// Delivery logging
+// Delivery
 router.post("/:supplierId/delivery", logDelivery);
 
-// Queries
-router.get("/product/:productId", getSuppliersByProduct);
+// Relational Queries
+router.get("/product/:productId", getSupplierByProduct);
 router.get("/warehouse/:warehouseId", getSuppliersByWarehouse);
+router.get("/category/:categoryId", getSuppliersByCategory);
 
 module.exports = router;
